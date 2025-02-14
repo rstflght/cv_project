@@ -24,6 +24,16 @@ model1 = YOLO('models/последовательная.pt')
 model1.to(DEVICE)
 
 model2 = YOLO('models/all_dataset.pt')
+model2.to(DEVICE)
+
+model3 = YOLO('models/lr_saggital.pt')
+model3.to(DEVICE)
+
+model4 = YOLO('models/lr_coronal.pt')
+model4.to(DEVICE)
+
+model5 = YOLO('models/axial_lr.pt')
+model5.to(DEVICE)
 
 def get_prediction(img, model) -> int:
     start = time.time()
@@ -41,26 +51,36 @@ st.image(ex_image)
 
 uploaded_file = st.sidebar.file_uploader(label='Загружать снимок сюда:', type=['jpeg', 'png'], accept_multiple_files=True)
 
-st.write('Выберите модель')
+model = None
 
+
+st.write('Выберите модель')
 if st.button('Обученная последовательно на разных проекциях'):
     model = model1
 if st.button('Обученная на всех проекциях сразу'):
     model = model2
+if st.button('Модель для саггитальной проекции'):
+    model = model3
+if st.button('Модель для фронтальной проекции'):
+    model = model4
+if st.button('Модель для горизонтальной проекции'):
+    model = model5
 
 if uploaded_file is not None:
     for file in uploaded_file:
         image = Image.open(file)
-        sec, results = get_prediction(image, model)
-        st.write(f'''Время выполнения предсказания: __{sec:.4f} секунды__ 
-    \nРезультат детекции:''')
-        st.image(results, use_container_width=True)
+        if model is not None:
+            sec, results = get_prediction(image, model)
+            st.write(f'''Время выполнения предсказания: __{sec:.4f} секунды__ 
+        \nРезультат детекции:''')
+            st.image(results, use_container_width=True)
         
 
 link = st.sidebar.text_input(label='Вставьте сюда ссылку на снимок')
 if link is not '':
+
     image = Image.open(urllib.request.urlopen(link)).convert("RGB")
-    sec, results = get_prediction(image)
+    sec, results = get_prediction(image, model)
     st.session_state.predictions.append((results, image))
     for pred, img in st.session_state.predictions:
         st.write(f'''Время выполнения предсказания: __{sec:.4f} секунды__ 
