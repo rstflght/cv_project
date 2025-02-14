@@ -78,12 +78,10 @@ if uploaded_file is not None:
 
 link = st.sidebar.text_input(label='Вставьте сюда ссылку на снимок')
 if link is not '':
-
     image = Image.open(urllib.request.urlopen(link)).convert("RGB")
-    sec, results = get_prediction(image, model)
-    st.session_state.predictions.append((results, image))
-    for pred, img in st.session_state.predictions:
+    if model is not None:
+        sec, results = get_prediction(image, model)
         st.write(f'''Время выполнения предсказания: __{sec:.4f} секунды__ 
-\nРезультат детекции:''')
+        \nРезультат детекции:''')
         st.image(results, use_container_width=True)
 
